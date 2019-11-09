@@ -35,19 +35,10 @@ public class HelloWorldController {
 
     @GetMapping("/url")
     public String fromURL(@RequestParam(value = "number") String number) throws IOException {
+        return getStringBuilder(getHttpURLConnection(number));
+    }
 
-        String address = "http://numbersapi.com/" + number +"/math";
-        URL url = new URL (address);
-
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("GET");
-
-        con.setRequestProperty("text/plain", "charset=utf-8");
-        con.setRequestProperty("Accept", "text/html");
-
-        int code = con.getResponseCode();
-        System.out.println(code);
-
+    private String getStringBuilder(HttpURLConnection con) throws IOException {
         StringBuilder response = new StringBuilder();
         try(BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))){
             String responseLine = null;
@@ -57,6 +48,16 @@ public class HelloWorldController {
             System.out.println(response.toString());
         }
         return response.toString();
+    }
+
+    private HttpURLConnection getHttpURLConnection(@RequestParam("number") String number) throws IOException {
+        String address = "http://numbersapi.com/" + number +"/math";
+        URL url = new URL (address);
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("text/plain", "charset=utf-8");
+        con.setRequestProperty("Accept", "text/html");
+        return con;
     }
 
     private static String getText(HttpURLConnection connection) throws IOException {
