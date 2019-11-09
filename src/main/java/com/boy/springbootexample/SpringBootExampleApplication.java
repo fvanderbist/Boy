@@ -1,4 +1,4 @@
-package com.javabunga.springbootexample;
+package com.boy.springbootexample;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

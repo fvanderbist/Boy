@@ -1,4 +1,4 @@
-package com.javabunga.springbootexample;
+package com.boy.springbootexample;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
