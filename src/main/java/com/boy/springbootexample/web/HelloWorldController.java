@@ -1,21 +1,58 @@
 package com.boy.springbootexample.web;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class HelloWorldController {
+    Logger logger = LoggerFactory.getLogger(HelloWorldController.class);
+
+    @Bean
+    WebClient getWebClient() {
+        return WebClient.create("http://localhost:8082");
+    }
+
+/*    @Bean
+    CommandLineRunner demo(WebClient client) {
+        return args -> {
+            client.get()
+                    .uri("/randomInteger")
+                    .accept(MediaType.TEXT_EVENT_STREAM)
+                    .retrieve()
+                    .bodyToFlux(Integer.class)
+                    .map(s -> String.valueOf(s))
+                    .subscribe(msg -> {
+                        logger.info(msg);
+                    });
+        };
+    }*/
+
+    @RequestMapping("/tellme")
+    public Flux<Integer> tellme() {
+        WebClient webClient = WebClient.create("http://localhost:8082");
+        return webClient.get().uri("/randomInteger")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(Integer.class)
+                .map(s -> Integer.valueOf(s));
+    }
 
     @RequestMapping("/hello")
     public String sayHello(@RequestParam(value = "name") String name) {
