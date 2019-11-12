@@ -1,8 +1,6 @@
 package com.boy.springbootexample.web;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,9 +14,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class HelloWorldController {
@@ -45,13 +46,22 @@ public class HelloWorldController {
     }*/
 
     @RequestMapping("/tellme")
-    public Flux<Integer> tellme() {
+    public Flux<String> tellme() {
         WebClient webClient = WebClient.create("http://localhost:8082");
-        return webClient.get().uri("/randomInteger")
-                .accept(MediaType.TEXT_EVENT_STREAM)
+
+        return webClient.get()
+                .uri("/randomInteger")
                 .retrieve()
                 .bodyToFlux(Integer.class)
-                .map(s -> Integer.valueOf(s));
+                .map(s -> String.valueOf(s))
+                .map(i -> {
+                    try {
+                        return getStringBuilder(getHttpURLConnection(i));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return "null";
+                });
     }
 
     @RequestMapping("/hello")
@@ -80,7 +90,7 @@ public class HelloWorldController {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))){
             String responseLine = null;
             while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
+                response.append(responseLine.trim()).append(System.getProperty("line.separator"));
             }
             System.out.println(response.toString());
         }
